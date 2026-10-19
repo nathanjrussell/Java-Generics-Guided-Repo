@@ -1,14 +1,14 @@
-# Version 3
+# Version 4
 
-## A generic ring interface
+## A generic matrix
 
-`RingElement<T>` declares `zero()`, `one()`, `add(T)`, `negate()`, and
-`multiply(T)`. `T` is the operand and result type.
+`Matrix<T>` replaces `ZModMatrix`. Its declaration is
+`Matrix<T extends RingElement<T>> implements RingElement<Matrix<T>>`.
 
-`ZModElement` implements `RingElement<ZModElement>`.
-`ZModMatrix` implements `RingElement<ZModMatrix>`.
-Each class accepts its own kind of operand, so adding a scalar to a matrix
-does not compile. `Main` also calls an operation through the interface.
+The bound says that entries provide ring operations. The `implements` clause
+says the matrix is also a ring element, with matrices as its operands and results.
+An unrestricted `T` would not provide `add` or `multiply`.
+`Main` uses `Matrix<ZModElement>`. The tests also use matrices as entries.
 
 ## Values
 
@@ -38,8 +38,8 @@ another Java type.
 
 ## Matrices
 
-`new ZModMatrix(rows, columns, defaultValues)` accepts a nonempty square
-`List<List<ZModElement>>` with exactly those dimensions. The lists are copied, entry references
+`new Matrix<>(rows, columns, defaultValues)` accepts a nonempty square
+`List<List<T>>` with exactly those dimensions. The lists are copied, entry references
 are shared, and dimensions stay fixed.
 
 `getRows()` and `getColumns()` return dimensions. `getValue(row, column)` and

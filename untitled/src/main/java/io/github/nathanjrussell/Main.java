@@ -27,15 +27,12 @@ public class Main {
             System.out.println("Cannot compare different rings. " + exception.getMessage());
         }
 
-        RingElement<ZModElement> element = a;
-        System.out.println("negate through the interface = " + element.negate().getValue());
-
         // Every entry in these matrices is an integer modulo 3.
-        ZModMatrix matrixA = new ZModMatrix(2, 2, List.of(
+        Matrix<ZModElement> matrixA = new Matrix<>(2, 2, List.of(
                 List.of(new ZModElement(1, 3), new ZModElement(2, 3)),
                 List.of(new ZModElement(0, 3), new ZModElement(1, 3))
         ));
-        ZModMatrix matrixB = new ZModMatrix(2, 2, List.of(
+        Matrix<ZModElement> matrixB = new Matrix<>(2, 2, List.of(
                 List.of(new ZModElement(2, 3), new ZModElement(0, 3)),
                 List.of(new ZModElement(1, 3), new ZModElement(1, 3))
         ));
@@ -55,7 +52,7 @@ public class Main {
         printMatrix("A after setting row 0 column 1 to zero", matrixA);
     }
 
-    private static void printMatrix(String label, ZModMatrix matrix) {
+    private static void printMatrix(String label, Matrix<ZModElement> matrix) {
         System.out.println(label);
         for (int row = 0; row < matrix.getRows(); row++) {
             for (int column = 0; column < matrix.getColumns(); column++) {

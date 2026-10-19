@@ -10,12 +10,12 @@ import java.util.Objects;
  * The constructor checks shape, but does not check whether all entries
  * belong to the same ring, such as having the same ZModElement modulus.
  */
-public class ZModMatrix implements RingElement<ZModMatrix> {
+public class Matrix<T extends RingElement<T>> implements RingElement<Matrix<T>> {
     private final int rows;
     private final int columns;
-    private final List<List<ZModElement>> values;
+    private final List<List<T>> values;
 
-    public ZModMatrix(int rows, int columns, List<List<ZModElement>> defaultValues) {
+    public Matrix(int rows, int columns, List<List<T>> defaultValues) {
         if (rows <= 0 || columns <= 0) {
             throw new IllegalArgumentException("Matrix dimensions must be greater than zero");
         }
@@ -29,19 +29,19 @@ public class ZModMatrix implements RingElement<ZModMatrix> {
         this.rows = rows;
         this.columns = columns;
         this.values = new ArrayList<>();
-        for (List<ZModElement> row : defaultValues) {
+        for (List<T> row : defaultValues) {
             if (row.size() != columns) {
                 throw new IllegalArgumentException("Each default row must match the number of columns");
             }
-            List<ZModElement> storedRow = new ArrayList<>();
-            for (ZModElement value : row) {
+            List<T> storedRow = new ArrayList<>();
+            for (T value : row) {
                 storedRow.add(Objects.requireNonNull(value, "Matrix entries must not be null"));
             }
             values.add(storedRow);
         }
     }
 
-    private ZModMatrix(ZModMatrix source) {
+    private Matrix(Matrix<T> source) {
         this(source.rows, source.columns, source.values);
     }
 
@@ -53,18 +53,18 @@ public class ZModMatrix implements RingElement<ZModMatrix> {
         return columns;
     }
 
-    public ZModElement getValue(int row, int column) {
+    public T getValue(int row, int column) {
         return values.get(row).get(column);
     }
 
-    public void setValue(int row, int column, ZModElement value) {
+    public void setValue(int row, int column, T value) {
         values.get(row).set(column, Objects.requireNonNull(value, "Matrix entries must not be null"));
     }
 
     @Override
-    public ZModMatrix add(ZModMatrix other) {
+    public Matrix<T> add(Matrix<T> other) {
         requireSameSize(other);
-        ZModMatrix result = new ZModMatrix(this);
+        Matrix<T> result = new Matrix<>(this);
         for (int row = 0; row < rows; row++) {
             for (int column = 0; column < columns; column++) {
                 result.setValue(row, column, getValue(row, column).add(other.getValue(row, column)));
@@ -74,14 +74,14 @@ public class ZModMatrix implements RingElement<ZModMatrix> {
     }
 
     @Override
-    public ZModMatrix multiply(ZModMatrix other) {
+    public Matrix<T> multiply(Matrix<T> other) {
         requireSameSize(other);
-        ZModMatrix result = new ZModMatrix(this);
+        Matrix<T> result = new Matrix<>(this);
         for (int row = 0; row < rows; row++) {
             for (int column = 0; column < columns; column++) {
-                ZModElement sum = getValue(row, 0).zero();
+                T sum = getValue(row, 0).zero();
                 for (int k = 0; k < columns; k++) {
-                    ZModElement product = getValue(row, k).multiply(other.getValue(k, column));
+                    T product = getValue(row, k).multiply(other.getValue(k, column));
                     sum = sum.add(product);
                 }
                 result.setValue(row, column, sum);
@@ -91,8 +91,8 @@ public class ZModMatrix implements RingElement<ZModMatrix> {
     }
 
     @Override
-    public ZModMatrix negate() {
-        ZModMatrix result = new ZModMatrix(this);
+    public Matrix<T> negate() {
+        Matrix<T> result = new Matrix<>(this);
         for (int row = 0; row < rows; row++) {
             for (int column = 0; column < columns; column++) {
                 result.setValue(row, column, getValue(row, column).negate());
@@ -102,8 +102,8 @@ public class ZModMatrix implements RingElement<ZModMatrix> {
     }
 
     @Override
-    public ZModMatrix zero() {
-        ZModMatrix result = new ZModMatrix(this);
+    public Matrix<T> zero() {
+        Matrix<T> result = new Matrix<>(this);
         for (int row = 0; row < rows; row++) {
             for (int column = 0; column < columns; column++) {
                 result.setValue(row, column, getValue(0, 0).zero());
@@ -113,15 +113,15 @@ public class ZModMatrix implements RingElement<ZModMatrix> {
     }
 
     @Override
-    public ZModMatrix one() {
-        ZModMatrix result = zero();
+    public Matrix<T> one() {
+        Matrix<T> result = zero();
         for (int index = 0; index < rows; index++) {
             result.setValue(index, index, getValue(0, 0).one());
         }
         return result;
     }
 
-    private void requireSameSize(ZModMatrix other) {
+    private void requireSameSize(Matrix<T> other) {
         if (rows != other.rows || columns != other.columns) {
             throw new IllegalArgumentException("The matrices must have the same size");
         }

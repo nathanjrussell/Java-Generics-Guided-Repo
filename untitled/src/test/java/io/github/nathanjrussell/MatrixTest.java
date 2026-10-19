@@ -11,24 +11,24 @@ import org.junit.jupiter.params.provider.CsvSource;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-class ZModMatrixTest {
-    private final ZModMatrix a = matrix(new int[][]{{1, 2}, {0, 1}});
-    private final ZModMatrix b = matrix(new int[][]{{2, 0}, {1, 1}});
+class MatrixTest {
+    private final Matrix<ZModElement> a = matrix(new int[][]{{1, 2}, {0, 1}});
+    private final Matrix<ZModElement> b = matrix(new int[][]{{2, 0}, {1, 1}});
 
     @Test
     void constructorRejectsEmptyMatrices() {
-        assertThrows(IllegalArgumentException.class, () -> new ZModMatrix(1, 1, List.of()));
+        assertThrows(IllegalArgumentException.class, () -> new Matrix<ZModElement>(1, 1, List.of()));
     }
 
     @Test
     void constructorRejectsRectangularMatrices() {
         assertThrows(IllegalArgumentException.class,
-                () -> new ZModMatrix(1, 2, List.of(List.of(new ZModElement(1, 3), new ZModElement(2, 3)))));
+                () -> new Matrix<>(1, 2, List.of(List.of(new ZModElement(1, 3), new ZModElement(2, 3)))));
     }
 
     @Test
     void constructorRejectsRaggedMatrices() {
-        assertThrows(IllegalArgumentException.class, () -> new ZModMatrix(2, 2, List.of(
+        assertThrows(IllegalArgumentException.class, () -> new Matrix<>(2, 2, List.of(
                 List.of(new ZModElement(1, 3), new ZModElement(2, 3)),
                 List.of(new ZModElement(0, 3))
         )));
@@ -38,14 +38,14 @@ class ZModMatrixTest {
     void constructorRejectsNullEntries() {
         List<ZModElement> row = Arrays.asList((ZModElement) null);
 
-        assertThrows(NullPointerException.class, () -> new ZModMatrix(1, 1, List.of(row)));
+        assertThrows(NullPointerException.class, () -> new Matrix<>(1, 1, List.of(row)));
     }
 
     @Test
     void constructorCopiesInputLists() {
         List<ZModElement> row = new ArrayList<>(List.of(new ZModElement(1, 3)));
         List<List<ZModElement>> rows = new ArrayList<>(List.of(row));
-        ZModMatrix matrix = new ZModMatrix(1, 1, rows);
+        Matrix<ZModElement> matrix = new Matrix<>(1, 1, rows);
 
         row.set(0, new ZModElement(2, 3));
         rows.clear();
@@ -77,7 +77,7 @@ class ZModMatrixTest {
 
     @Test
     void zeroIsTheAdditiveIdentityOnBothSides() {
-        ZModMatrix zero = a.zero();
+        Matrix<ZModElement> zero = a.zero();
 
         assertMatrix(new int[][]{{0, 0}, {0, 0}}, zero);
         assertSameEntries(a, a.add(zero));
@@ -86,7 +86,7 @@ class ZModMatrixTest {
 
     @Test
     void oneIsTheMultiplicativeIdentityOnBothSides() {
-        ZModMatrix one = a.one();
+        Matrix<ZModElement> one = a.one();
 
         assertMatrix(new int[][]{{1, 0}, {0, 1}}, one);
         assertSameEntries(a, a.multiply(one));
@@ -95,7 +95,7 @@ class ZModMatrixTest {
 
     @Test
     void operationsRejectDifferentMatrixSizes() {
-        ZModMatrix smaller = matrix(new int[][]{{1}});
+        Matrix<ZModElement> smaller = matrix(new int[][]{{1}});
 
         assertThrows(IllegalArgumentException.class, () -> a.add(smaller));
         assertThrows(IllegalArgumentException.class, () -> a.multiply(smaller));
@@ -105,7 +105,7 @@ class ZModMatrixTest {
 
     @Test
     void operationsRejectDifferentEntryRings() {
-        ZModMatrix modulusFive = new ZModMatrix(2, 2, List.of(
+        Matrix<ZModElement> modulusFive = new Matrix<>(2, 2, List.of(
                 List.of(new ZModElement(1, 5), new ZModElement(2, 5)),
                 List.of(new ZModElement(0, 5), new ZModElement(1, 5))
         ));
@@ -116,7 +116,7 @@ class ZModMatrixTest {
 
     @Test
     void mixedModuliAreAcceptedButCanFailDuringArithmetic() {
-        ZModMatrix mixed = new ZModMatrix(2, 2, List.of(
+        Matrix<ZModElement> mixed = new Matrix<>(2, 2, List.of(
                 List.of(new ZModElement(1, 3), new ZModElement(2, 5)),
                 List.of(new ZModElement(0, 3), new ZModElement(1, 3))
         ));
@@ -141,8 +141,8 @@ class ZModMatrixTest {
 
     @Test
     void oneByOneMatricesWork() {
-        ZModMatrix first = matrix(new int[][]{{2}});
-        ZModMatrix second = matrix(new int[][]{{1}});
+        Matrix<ZModElement> first = matrix(new int[][]{{2}});
+        Matrix<ZModElement> second = matrix(new int[][]{{1}});
 
         assertMatrix(new int[][]{{0}}, first.add(second));
         assertMatrix(new int[][]{{2}}, first.multiply(second));
@@ -151,7 +151,7 @@ class ZModMatrixTest {
 
     @Test
     void identitiesUseTheEntryRingRatherThanIntegerConstants() {
-        ZModMatrix trivialRing = new ZModMatrix(1, 1, List.of(List.of(new ZModElement(0, 1))));
+        Matrix<ZModElement> trivialRing = new Matrix<>(1, 1, List.of(List.of(new ZModElement(0, 1))));
 
         assertEquals(0, trivialRing.zero().getValue(0, 0).getValue());
         assertEquals(0, trivialRing.one().getValue(0, 0).getValue());
@@ -160,8 +160,21 @@ class ZModMatrixTest {
     }
 
     @Test
+    void matrixEntriesCanThemselvesBeMatrices() {
+        Matrix<Matrix<ZModElement>> first = new Matrix<>(1, 1, List.of(List.of(a)));
+        Matrix<Matrix<ZModElement>> second = new Matrix<>(1, 1, List.of(List.of(b)));
+
+        assertMatrix(new int[][]{{0, 2}, {1, 2}}, first.add(second).getValue(0, 0));
+        assertMatrix(new int[][]{{1, 2}, {1, 1}}, first.multiply(second).getValue(0, 0));
+        assertMatrix(new int[][]{{2, 1}, {1, 0}}, second.multiply(first).getValue(0, 0));
+        assertMatrix(new int[][]{{2, 1}, {0, 2}}, first.negate().getValue(0, 0));
+        assertMatrix(new int[][]{{0, 0}, {0, 0}}, first.zero().getValue(0, 0));
+        assertMatrix(new int[][]{{1, 0}, {0, 1}}, first.one().getValue(0, 0));
+    }
+
+    @Test
     void additionIsAssociativeAndCommutative() {
-        ZModMatrix c = matrix(new int[][]{{0, 1}, {2, 2}});
+        Matrix<ZModElement> c = matrix(new int[][]{{0, 1}, {2, 2}});
 
         assertSameEntries(a.add(b), b.add(a));
         assertSameEntries(a.add(b).add(c), a.add(b.add(c)));
@@ -169,7 +182,7 @@ class ZModMatrixTest {
 
     @Test
     void multiplicationIsAssociativeAndDistributesOverAddition() {
-        ZModMatrix c = matrix(new int[][]{{0, 1}, {2, 2}});
+        Matrix<ZModElement> c = matrix(new int[][]{{0, 1}, {2, 2}});
 
         assertSameEntries(a.multiply(b).multiply(c), a.multiply(b.multiply(c)));
         assertSameEntries(a.multiply(b.add(c)), a.multiply(b).add(a.multiply(c)));
@@ -179,31 +192,31 @@ class ZModMatrixTest {
     @ParameterizedTest
     @CsvSource({"0, 0", "0, 1", "1, 0", "-1, 1", "1, -1"})
     void constructorRejectsNonpositiveDimensions(int rows, int columns) {
-        assertThrows(IllegalArgumentException.class, () -> new ZModMatrix(rows, columns, List.of()));
+        assertThrows(IllegalArgumentException.class, () -> new Matrix<ZModElement>(rows, columns, List.of()));
     }
 
     @Test
     void constructorRequiresTheExactNumberOfDefaultRows() {
         List<ZModElement> row = List.of(new ZModElement(1, 3), new ZModElement(2, 3));
 
-        assertThrows(IllegalArgumentException.class, () -> new ZModMatrix(2, 2, List.of(row)));
-        assertThrows(IllegalArgumentException.class, () -> new ZModMatrix(2, 2, List.of(row, row, row)));
+        assertThrows(IllegalArgumentException.class, () -> new Matrix<>(2, 2, List.of(row)));
+        assertThrows(IllegalArgumentException.class, () -> new Matrix<>(2, 2, List.of(row, row, row)));
     }
 
     @Test
     void constructorRejectsExtraDefaultColumns() {
         assertThrows(IllegalArgumentException.class,
-                () -> new ZModMatrix(1, 1, List.of(List.of(new ZModElement(1, 3), new ZModElement(2, 3)))));
+                () -> new Matrix<>(1, 1, List.of(List.of(new ZModElement(1, 3), new ZModElement(2, 3)))));
     }
 
     @Test
     void constructorRejectsNullDefaultValues() {
-        assertThrows(NullPointerException.class, () -> new ZModMatrix(1, 1, null));
+        assertThrows(NullPointerException.class, () -> new Matrix<ZModElement>(1, 1, null));
     }
 
     @Test
     void getterReturnsEveryDefaultValueAtItsCoordinates() {
-        ZModMatrix matrix = new ZModMatrix(3, 3, List.of(
+        Matrix<ZModElement> matrix = new Matrix<>(3, 3, List.of(
                 List.of(new ZModElement(0, 11), new ZModElement(1, 11), new ZModElement(2, 11)),
                 List.of(new ZModElement(3, 11), new ZModElement(4, 11), new ZModElement(5, 11)),
                 List.of(new ZModElement(6, 11), new ZModElement(7, 11), new ZModElement(8, 11))
@@ -245,7 +258,7 @@ class ZModMatrixTest {
     @Test
     void setterDoesNotChangeTheDefaultList() {
         List<ZModElement> row = new ArrayList<>(List.of(new ZModElement(1, 3)));
-        ZModMatrix matrix = new ZModMatrix(1, 1, List.of(row));
+        Matrix<ZModElement> matrix = new Matrix<>(1, 1, List.of(row));
 
         matrix.setValue(0, 0, new ZModElement(2, 3));
 
@@ -255,8 +268,8 @@ class ZModMatrixTest {
 
     @Test
     void arithmeticResultsHaveIndependentStorage() {
-        List<ZModMatrix> results = List.of(a.add(b), a.multiply(b), a.negate(), a.zero(), a.one());
-        for (ZModMatrix result : results) {
+        List<Matrix<ZModElement>> results = List.of(a.add(b), a.multiply(b), a.negate(), a.zero(), a.one());
+        for (Matrix<ZModElement> result : results) {
             result.setValue(0, 0, new ZModElement(2, 3));
         }
 
@@ -273,7 +286,7 @@ class ZModMatrixTest {
         assertThrows(IllegalArgumentException.class, () -> a.multiply(b));
     }
 
-    private static ZModMatrix matrix(int[][] values) {
+    private static Matrix<ZModElement> matrix(int[][] values) {
         List<List<ZModElement>> rows = new ArrayList<>();
         for (int[] row : values) {
             List<ZModElement> entries = new ArrayList<>();
@@ -282,10 +295,10 @@ class ZModMatrixTest {
             }
             rows.add(entries);
         }
-        return new ZModMatrix(values.length, values[0].length, rows);
+        return new Matrix<>(values.length, values[0].length, rows);
     }
 
-    private static void assertMatrix(int[][] expected, ZModMatrix actual) {
+    private static void assertMatrix(int[][] expected, Matrix<ZModElement> actual) {
         assertEquals(expected.length, actual.getRows());
         assertEquals(expected[0].length, actual.getColumns());
         for (int row = 0; row < expected.length; row++) {
@@ -297,7 +310,7 @@ class ZModMatrixTest {
         }
     }
 
-    private static void assertSameEntries(ZModMatrix expected, ZModMatrix actual) {
+    private static void assertSameEntries(Matrix<ZModElement> expected, Matrix<ZModElement> actual) {
         assertEquals(expected.getRows(), actual.getRows());
         assertEquals(expected.getColumns(), actual.getColumns());
         for (int row = 0; row < expected.getRows(); row++) {
