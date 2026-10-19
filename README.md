@@ -1,9 +1,10 @@
-# ZMod
+# Generic Ring Elements
 
-A simple Java class for arithmetic modulo a positive integer.
+Version `v0.2.0` demonstrates a generic ring interface, modular integers,
+and square matrices over a ring.
 
-The [project README](untitled/README.md) explains the class, its methods,
-the ring structure, and the runtime type caveat.
+The [project README](untitled/README.md) explains the classes, their methods,
+and the remaining runtime type limitations.
 
 Run the tests from the repository root with JDK 24 and Maven.
 

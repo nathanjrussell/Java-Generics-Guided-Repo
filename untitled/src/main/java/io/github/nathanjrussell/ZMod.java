@@ -15,7 +15,7 @@ package io.github.nathanjrussell;
  * Adding zero or multiplying by one leaves an element unchanged.
  * Every element has an additive inverse, returned by {@link #negate()}.
  */
-public class ZMod {
+public class ZMod implements RingElement<ZMod> {
     private final int value;
     private final int modulus;
 
@@ -49,6 +49,7 @@ public class ZMod {
         return modulus;
     }
 
+    @Override
     public ZMod add(ZMod other) {
         if (other.modulus != this.modulus) {
             throw new IllegalArgumentException("The modulus value of the two operands must be equal");
@@ -61,10 +62,12 @@ public class ZMod {
      * Returns the additive inverse in the same ring.
      * Adding this element to its inverse produces zero.
      */
+    @Override
     public ZMod negate() {
         return new ZMod(-this.value, this.modulus);
     }
 
+    @Override
     public ZMod multiply(ZMod other) {
         if (other.modulus != this.modulus) {
             throw new IllegalArgumentException("The modulus value of the two operands must be equal");
@@ -74,11 +77,13 @@ public class ZMod {
     }
 
     /** Returns the additive identity in the same ring. */
+    @Override
     public ZMod zero() {
         return new ZMod(0, this.modulus);
     }
 
     /** Returns the multiplicative identity in the same ring. */
+    @Override
     public ZMod one() {
         return new ZMod(1, this.modulus);
     }
