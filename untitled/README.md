@@ -1,13 +1,19 @@
-# Version 5
+# Version 6
 
-## Modulus objects
+## Modulus types on elements
 
-`Modulus` provides `value()`. `Mod3` and `Mod5` are final classes returning
-3 and 5. Every instance of a modulus class should represent the same fixed value.
+`ZModElement<M extends Modulus>` implements
+`RingElement<ZModElement<M>>`. The bound gives access to the modulus value.
+Using the same `M` in operands and results preserves the modulus type.
 
-Create an element with `new ZModElement(2, new Mod3())`.
-The element now accepts a modulus object, but its Java type is still just
-`ZModElement`. `Main` uses both modulus classes and matrices over modulus 3.
+For example, `ZModElement<Mod3> a = new ZModElement<>(2, new Mod3())`
+declares an element of the ring modulo 3. Its arithmetic returns that same type.
+Passing a `ZModElement<Mod5>` to `a.add` or `a.multiply` does not compile.
+
+`Matrix<ZModElement<Mod3>>` carries the distinction into matrices without changing
+the matrix implementation. Its constructor and setter reject entries typed with
+`Mod5` at compilation. `Main` shows valid operations and comments out the invalid
+ones. Compiler tests check those failures.
 
 ## Values
 
@@ -61,12 +67,15 @@ and one has ones on the diagonal. Multiplication need not commute, as `Main` sho
 
 ## Type Caveat
 
-The value 3 modulo 7 differs from 3 modulo 5. Both have Java type `ZModElement`,
-so their comparison is rejected at runtime. Runtime ring checking could restrict
-flexibility as features are added.
+Keep the concrete modulus type in declarations. `ZModElement<Mod3>` and
+`ZModElement<Mod5>` have different arithmetic operand types. Constructing elements
+as `ZModElement<Modulus>` loses that distinction, so runtime checks remain.
+Boundary tests deliberately use this broader type.
 
-Matrices can still accept mixed moduli through construction or assignment.
-Those entries do not belong to one ring, and arithmetic may throw later.
+The value 3 modulo 7 and the value 3 modulo 5 still belong to different rings.
+`equals(Object)` accepts any Java object, so its check remains at runtime.
+Matrix dimensions are also checked at runtime. Interfaces cannot prove ring laws
+or that a custom modulus class always returns its promised value.
 
 ## Run
 

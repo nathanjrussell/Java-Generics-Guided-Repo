@@ -17,15 +17,15 @@ import java.util.Objects;
  * Adding zero or multiplying by one leaves an element unchanged.
  * Every element has an additive inverse, returned by {@link #negate()}.
  */
-public class ZModElement implements RingElement<ZModElement> {
+public class ZModElement<M extends Modulus> implements RingElement<ZModElement<M>> {
     private final int value;
-    private final Modulus modulus;
+    private final M modulus;
 
     /**
      * @param value the element's input value (must be less than 1,000 and may be negative)
      * @param modulus the modulus (must be greater than zero and less than 1,000)
      */
-    public ZModElement(int value, Modulus modulus) {
+    public ZModElement(int value, M modulus) {
         Objects.requireNonNull(modulus, "modulus must not be null");
         int modulusValue = modulus.value();
         if (modulusValue <= 0 || modulusValue >= 1_000) {
@@ -54,12 +54,12 @@ public class ZModElement implements RingElement<ZModElement> {
     }
 
     @Override
-    public ZModElement add(ZModElement other) {
+    public ZModElement<M> add(ZModElement<M> other) {
         if (other.getModulus() != this.getModulus()) {
             throw new IllegalArgumentException("The modulus value of the two operands must be equal");
         }
         int sum = this.value + other.value;
-        return new ZModElement(sum % this.getModulus(), this.modulus);
+        return new ZModElement<>(sum % this.getModulus(), this.modulus);
     }
 
     /**
@@ -67,29 +67,29 @@ public class ZModElement implements RingElement<ZModElement> {
      * Adding this element to its inverse produces zero.
      */
     @Override
-    public ZModElement negate() {
-        return new ZModElement(-this.value, this.modulus);
+    public ZModElement<M> negate() {
+        return new ZModElement<>(-this.value, this.modulus);
     }
 
     @Override
-    public ZModElement multiply(ZModElement other) {
+    public ZModElement<M> multiply(ZModElement<M> other) {
         if (other.getModulus() != this.getModulus()) {
             throw new IllegalArgumentException("The modulus value of the two operands must be equal");
         }
         int product = this.value * other.value;
-        return new ZModElement(product % this.getModulus(), this.modulus);
+        return new ZModElement<>(product % this.getModulus(), this.modulus);
     }
 
     /** Returns the additive identity in the same ring. */
     @Override
-    public ZModElement zero() {
-        return new ZModElement(0, this.modulus);
+    public ZModElement<M> zero() {
+        return new ZModElement<>(0, this.modulus);
     }
 
     /** Returns the multiplicative identity in the same ring. */
     @Override
-    public ZModElement one() {
-        return new ZModElement(1, this.modulus);
+    public ZModElement<M> one() {
+        return new ZModElement<>(1, this.modulus);
     }
 
     /**
@@ -100,7 +100,7 @@ public class ZModElement implements RingElement<ZModElement> {
      */
     @Override
     public boolean equals(Object other) {
-        if (!(other instanceof ZModElement otherElement)) {
+        if (!(other instanceof ZModElement<?> otherElement)) {
             throw new ClassCastException("Cannot compare ZModElements with different types");
         }
         if (otherElement.getModulus() != this.getModulus()) {

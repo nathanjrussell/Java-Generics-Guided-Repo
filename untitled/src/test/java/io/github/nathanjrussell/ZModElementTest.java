@@ -26,7 +26,7 @@ class ZModElementTest {
             "-2147483648, 5, 2"
     })
     void constructorNormalizesValueAndPreservesModulus(int value, int modulus, int expected) {
-        ZModElement element = new ZModElement(value, () -> modulus);
+        ZModElement<Modulus> element = new ZModElement<>(value, () -> modulus);
 
         assertElement(expected, modulus, element);
     }
@@ -34,13 +34,13 @@ class ZModElementTest {
     @ParameterizedTest
     @ValueSource(ints = {Integer.MIN_VALUE, -1, 0, 1_000, Integer.MAX_VALUE})
     void constructorRejectsModulusOutsideAllowedRange(int modulus) {
-        assertThrows(IllegalArgumentException.class, () -> new ZModElement(1, () -> modulus));
+        assertThrows(IllegalArgumentException.class, () -> new ZModElement<>(1, () -> modulus));
     }
 
     @ParameterizedTest
     @ValueSource(ints = {1_000, 1_001, Integer.MAX_VALUE})
     void constructorRejectsInputValuesAtOrAboveOneThousand(int value) {
-        assertThrows(IllegalArgumentException.class, () -> new ZModElement(value, () -> 5));
+        assertThrows(IllegalArgumentException.class, () -> new ZModElement<>(value, () -> 5));
     }
 
     @ParameterizedTest
@@ -53,10 +53,10 @@ class ZModElementTest {
             "1, 1, 1, 0"
     })
     void addReturnsSumModuloModulus(int leftValue, int rightValue, int modulus, int expected) {
-        ZModElement left = new ZModElement(leftValue, () -> modulus);
-        ZModElement right = new ZModElement(rightValue, () -> modulus);
+        ZModElement<Modulus> left = new ZModElement<>(leftValue, () -> modulus);
+        ZModElement<Modulus> right = new ZModElement<>(rightValue, () -> modulus);
 
-        ZModElement result = left.add(right);
+        ZModElement<Modulus> result = left.add(right);
 
         assertElement(expected, modulus, result);
     }
@@ -72,10 +72,10 @@ class ZModElementTest {
             "1, 1, 1, 0"
     })
     void multiplyReturnsProductModuloModulus(int leftValue, int rightValue, int modulus, int expected) {
-        ZModElement left = new ZModElement(leftValue, () -> modulus);
-        ZModElement right = new ZModElement(rightValue, () -> modulus);
+        ZModElement<Modulus> left = new ZModElement<>(leftValue, () -> modulus);
+        ZModElement<Modulus> right = new ZModElement<>(rightValue, () -> modulus);
 
-        ZModElement result = left.multiply(right);
+        ZModElement<Modulus> result = left.multiply(right);
 
         assertElement(expected, modulus, result);
     }
@@ -89,42 +89,42 @@ class ZModElementTest {
             "1, 1, 0"
     })
     void negateReturnsAdditiveInverse(int value, int modulus, int expected) {
-        ZModElement element = new ZModElement(value, () -> modulus);
+        ZModElement<Modulus> element = new ZModElement<>(value, () -> modulus);
 
-        ZModElement result = element.negate();
+        ZModElement<Modulus> result = element.negate();
 
         assertElement(expected, modulus, result);
     }
 
     @Test
     void addRejectsDifferentModuli() {
-        ZModElement left = new ZModElement(2, () -> 5);
-        ZModElement right = new ZModElement(3, () -> 7);
+        ZModElement<Modulus> left = new ZModElement<>(2, () -> 5);
+        ZModElement<Modulus> right = new ZModElement<>(3, () -> 7);
 
         assertThrows(IllegalArgumentException.class, () -> left.add(right));
     }
 
     @Test
     void multiplyRejectsDifferentModuli() {
-        ZModElement left = new ZModElement(2, () -> 5);
-        ZModElement right = new ZModElement(3, () -> 7);
+        ZModElement<Modulus> left = new ZModElement<>(2, () -> 5);
+        ZModElement<Modulus> right = new ZModElement<>(3, () -> 7);
 
         assertThrows(IllegalArgumentException.class, () -> left.multiply(right));
     }
 
     @Test
     void addingNegationProducesZero() {
-        ZModElement element = new ZModElement(998, () -> 999);
+        ZModElement<Modulus> element = new ZModElement<>(998, () -> 999);
 
-        ZModElement result = element.add(element.negate());
+        ZModElement<Modulus> result = element.add(element.negate());
 
         assertElement(0, 999, result);
     }
 
     @Test
     void arithmeticDoesNotChangeOperands() {
-        ZModElement left = new ZModElement(-6, () -> 5);
-        ZModElement right = new ZModElement(3, () -> 5);
+        ZModElement<Modulus> left = new ZModElement<>(-6, () -> 5);
+        ZModElement<Modulus> right = new ZModElement<>(3, () -> 5);
 
         left.add(right);
         left.multiply(right);
@@ -137,9 +137,9 @@ class ZModElementTest {
     @ParameterizedTest
     @ValueSource(ints = {1, 2, 5, 999})
     void zeroIsAdditiveIdentityInSameRing(int modulus) {
-        ZModElement element = new ZModElement(-1, () -> modulus);
+        ZModElement<Modulus> element = new ZModElement<>(-1, () -> modulus);
 
-        ZModElement zero = element.zero();
+        ZModElement<Modulus> zero = element.zero();
 
         assertElement(0, modulus, zero);
         assertEquals(element, element.add(zero));
@@ -149,9 +149,9 @@ class ZModElementTest {
     @ParameterizedTest
     @CsvSource({"1, 0", "2, 1", "5, 1", "999, 1"})
     void oneIsMultiplicativeIdentityInSameRing(int modulus, int expectedValue) {
-        ZModElement element = new ZModElement(-1, () -> modulus);
+        ZModElement<Modulus> element = new ZModElement<>(-1, () -> modulus);
 
-        ZModElement one = element.one();
+        ZModElement<Modulus> one = element.one();
 
         assertElement(expectedValue, modulus, one);
         assertEquals(element, element.multiply(one));
@@ -168,8 +168,8 @@ class ZModElementTest {
             "0, 1, 1, true"
     })
     void equalsComparesNormalizedValuesInSameRing(int leftValue, int rightValue, int modulus, boolean expected) {
-        Object left = new ZModElement(leftValue, () -> modulus);
-        Object right = new ZModElement(rightValue, () -> modulus);
+        Object left = new ZModElement<>(leftValue, () -> modulus);
+        Object right = new ZModElement<>(rightValue, () -> modulus);
 
         assertEquals(expected, left.equals(right));
         assertEquals(expected, right.equals(left));
@@ -177,21 +177,21 @@ class ZModElementTest {
 
     @Test
     void equalsRecognizesSameObject() {
-        ZModElement element = new ZModElement(3, () -> 7);
+        ZModElement<Modulus> element = new ZModElement<>(3, () -> 7);
 
         assertTrue(element.equals(element));
     }
 
     @Test
     void equalsRejectsNull() {
-        ZModElement element = new ZModElement(3, () -> 7);
+        ZModElement<Modulus> element = new ZModElement<>(3, () -> 7);
 
         assertThrows(ClassCastException.class, () -> element.equals(null));
     }
 
     @Test
     void equalsRejectsOtherTypes() {
-        ZModElement element = new ZModElement(3, () -> 7);
+        ZModElement<Modulus> element = new ZModElement<>(3, () -> 7);
 
         assertThrows(ClassCastException.class, () -> element.equals(Integer.valueOf(3)));
         assertThrows(ClassCastException.class, () -> element.equals("3"));
@@ -201,8 +201,8 @@ class ZModElementTest {
     @ParameterizedTest
     @CsvSource({"3, 3, 7, 5", "3, 4, 7, 5", "0, 0, 1, 5"})
     void equalsRejectsDifferentRings(int leftValue, int rightValue, int leftModulus, int rightModulus) {
-        Object left = new ZModElement(leftValue, () -> leftModulus);
-        Object right = new ZModElement(rightValue, () -> rightModulus);
+        Object left = new ZModElement<>(leftValue, () -> leftModulus);
+        Object right = new ZModElement<>(rightValue, () -> rightModulus);
 
         assertThrows(IllegalArgumentException.class, () -> left.equals(right));
         assertThrows(IllegalArgumentException.class, () -> right.equals(left));
@@ -210,16 +210,16 @@ class ZModElementTest {
 
     @Test
     void genericInterfaceCanNegateTheElement() {
-        ZModElement receiver = new ZModElement(2, () -> 3);
-        RingElement<ZModElement> element = receiver;
+        ZModElement<Modulus> receiver = new ZModElement<>(2, () -> 3);
+        RingElement<ZModElement<Modulus>> element = receiver;
 
-        ZModElement result = element.negate();
+        ZModElement<Modulus> result = element.negate();
 
         assertElement(1, 3, result);
         assertElement(2, 3, receiver);
     }
 
-    private static void assertElement(int expectedValue, int expectedModulus, ZModElement actual) {
+    private static void assertElement(int expectedValue, int expectedModulus, ZModElement<Modulus> actual) {
         assertEquals(expectedValue, actual.getValue(), "value");
         assertEquals(expectedModulus, actual.getModulus(), "modulus");
     }

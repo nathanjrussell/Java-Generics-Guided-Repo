@@ -14,13 +14,13 @@ class ModulusTest {
 
     @Test
     void elementsRejectMissingModuli() {
-        assertThrows(NullPointerException.class, () -> new ZModElement(1, null));
+        assertThrows(NullPointerException.class, () -> new ZModElement<Mod3>(1, null));
     }
 
     @Test
     void separateModulusInstancesRepresentTheSameRing() {
-        ZModElement first = new ZModElement(2, new Mod3());
-        ZModElement second = new ZModElement(2, new Mod3());
+        ZModElement<Mod3> first = new ZModElement<Mod3>(2, new Mod3());
+        ZModElement<Mod3> second = new ZModElement<Mod3>(2, new Mod3());
         assertEquals(1, first.add(second).getValue());
         assertEquals(1, first.multiply(second).getValue());
     }
