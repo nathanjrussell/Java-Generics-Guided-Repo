@@ -1,7 +1,5 @@
 package io.github.nathanjrussell;
 
-import java.util.List;
-
 public class Main {
     public static void main(String[] args) {
         ZModElement a = new ZModElement(3, 7);
@@ -27,38 +25,5 @@ public class Main {
             System.out.println("Cannot compare different rings. " + exception.getMessage());
         }
 
-        // Every entry in these matrices is an integer modulo 3.
-        Matrix<ZModElement> matrixA = new Matrix<>(2, 2, List.of(
-                List.of(new ZModElement(1, 3), new ZModElement(2, 3)),
-                List.of(new ZModElement(0, 3), new ZModElement(1, 3))
-        ));
-        Matrix<ZModElement> matrixB = new Matrix<>(2, 2, List.of(
-                List.of(new ZModElement(2, 3), new ZModElement(0, 3)),
-                List.of(new ZModElement(1, 3), new ZModElement(1, 3))
-        ));
-
-        System.out.println("\nMatrices over integers modulo 3");
-        printMatrix("A", matrixA);
-        printMatrix("B", matrixB);
-        printMatrix("A + B", matrixA.add(matrixB));
-        printMatrix("A * B", matrixA.multiply(matrixB));
-        printMatrix("B * A", matrixB.multiply(matrixA));
-        printMatrix("negate(A)", matrixA.negate());
-        printMatrix("negate(B)", matrixB.negate());
-        printMatrix("zero", matrixA.zero());
-        printMatrix("one", matrixA.one());
-
-        matrixA.setValue(0, 1, new ZModElement(0, 3));
-        printMatrix("A after setting row 0 column 1 to zero", matrixA);
-    }
-
-    private static void printMatrix(String label, Matrix<ZModElement> matrix) {
-        System.out.println(label);
-        for (int row = 0; row < matrix.getRows(); row++) {
-            for (int column = 0; column < matrix.getColumns(); column++) {
-                System.out.print(matrix.getValue(row, column).getValue() + " ");
-            }
-            System.out.println();
-        }
     }
 }
