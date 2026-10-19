@@ -27,6 +27,9 @@ public class Main {
             System.out.println("Cannot compare different rings. " + exception.getMessage());
         }
 
+        RingElement<ZModElement> element = a;
+        System.out.println("negate through the interface = " + element.negate().getValue());
+
         // Every entry in these matrices is an integer modulo 3.
         ZModMatrix matrixA = new ZModMatrix(2, 2, List.of(
                 List.of(new ZModElement(1, 3), new ZModElement(2, 3)),

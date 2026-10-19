@@ -208,6 +208,17 @@ class ZModElementTest {
         assertThrows(IllegalArgumentException.class, () -> right.equals(left));
     }
 
+    @Test
+    void genericInterfaceCanNegateTheElement() {
+        ZModElement receiver = new ZModElement(2, 3);
+        RingElement<ZModElement> element = receiver;
+
+        ZModElement result = element.negate();
+
+        assertElement(1, 3, result);
+        assertElement(2, 3, receiver);
+    }
+
     private static void assertElement(int expectedValue, int expectedModulus, ZModElement actual) {
         assertEquals(expectedValue, actual.getValue(), "value");
         assertEquals(expectedModulus, actual.getModulus(), "modulus");

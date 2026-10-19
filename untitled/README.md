@@ -1,10 +1,14 @@
-# Version 2
+# Version 3
 
-## A concrete matrix
+## A generic ring interface
 
-`ZModMatrix` adds matrices whose entries are `ZModElement` objects.
-The two classes have similar operations but no common interface.
-`Main` shows scalar arithmetic and two matrices over integers modulo 3.
+`RingElement<T>` declares `zero()`, `one()`, `add(T)`, `negate()`, and
+`multiply(T)`. `T` is the operand and result type.
+
+`ZModElement` implements `RingElement<ZModElement>`.
+`ZModMatrix` implements `RingElement<ZModMatrix>`.
+Each class accepts its own kind of operand, so adding a scalar to a matrix
+does not compile. `Main` also calls an operation through the interface.
 
 ## Values
 

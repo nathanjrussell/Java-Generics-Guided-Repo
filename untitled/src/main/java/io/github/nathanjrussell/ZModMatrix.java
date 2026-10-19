@@ -10,7 +10,7 @@ import java.util.Objects;
  * The constructor checks shape, but does not check whether all entries
  * belong to the same ring, such as having the same ZModElement modulus.
  */
-public class ZModMatrix {
+public class ZModMatrix implements RingElement<ZModMatrix> {
     private final int rows;
     private final int columns;
     private final List<List<ZModElement>> values;
@@ -61,6 +61,7 @@ public class ZModMatrix {
         values.get(row).set(column, Objects.requireNonNull(value, "Matrix entries must not be null"));
     }
 
+    @Override
     public ZModMatrix add(ZModMatrix other) {
         requireSameSize(other);
         ZModMatrix result = new ZModMatrix(this);
@@ -72,6 +73,7 @@ public class ZModMatrix {
         return result;
     }
 
+    @Override
     public ZModMatrix multiply(ZModMatrix other) {
         requireSameSize(other);
         ZModMatrix result = new ZModMatrix(this);
@@ -88,6 +90,7 @@ public class ZModMatrix {
         return result;
     }
 
+    @Override
     public ZModMatrix negate() {
         ZModMatrix result = new ZModMatrix(this);
         for (int row = 0; row < rows; row++) {
@@ -98,6 +101,7 @@ public class ZModMatrix {
         return result;
     }
 
+    @Override
     public ZModMatrix zero() {
         ZModMatrix result = new ZModMatrix(this);
         for (int row = 0; row < rows; row++) {
@@ -108,6 +112,7 @@ public class ZModMatrix {
         return result;
     }
 
+    @Override
     public ZModMatrix one() {
         ZModMatrix result = zero();
         for (int index = 0; index < rows; index++) {
