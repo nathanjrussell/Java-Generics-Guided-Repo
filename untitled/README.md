@@ -1,10 +1,10 @@
-# Version 1
+# Version 2
 
-## Modular arithmetic
+## A concrete matrix
 
-`ZModElement` stores a value and an integer modulus. There are no generic
-classes or shared interfaces yet. `Main` demonstrates arithmetic, identities,
-and one comparison between different rings.
+`ZModMatrix` adds matrices whose entries are `ZModElement` objects.
+The two classes have similar operations but no common interface.
+`Main` shows scalar arithmetic and two matrices over integers modulo 3.
 
 ## Values
 
@@ -32,6 +32,17 @@ Scalar arithmetic and equality reject different moduli with
 `IllegalArgumentException`. Equality throws `ClassCastException` for null or
 another Java type.
 
+## Matrices
+
+`new ZModMatrix(rows, columns, defaultValues)` accepts a nonempty square
+`List<List<ZModElement>>` with exactly those dimensions. The lists are copied, entry references
+are shared, and dimensions stay fixed.
+
+`getRows()` and `getColumns()` return dimensions. `getValue(row, column)` and
+`setValue(row, column, value)` use indexes starting at zero and reject invalid
+indexes or null entries. Arithmetic requires matching sizes. Matrices provide
+all five ring operations but do not override `equals`.
+
 ## Rings
 
 A ring is a set with addition and multiplication satisfying associativity and
@@ -41,11 +52,17 @@ a multiplicative identity.
 Integers modulo one positive modulus form a commutative ring. Adding zero or
 multiplying by one leaves an element unchanged. Modulo 1, zero and one coincide.
 
+Square matrices of one size over a ring also form a ring. Zero is the zero matrix
+and one has ones on the diagonal. Multiplication need not commute, as `Main` shows.
+
 ## Type Caveat
 
 The value 3 modulo 7 differs from 3 modulo 5. Both have Java type `ZModElement`,
 so their comparison is rejected at runtime. Runtime ring checking could restrict
 flexibility as features are added.
+
+Matrices can still accept mixed moduli through construction or assignment.
+Those entries do not belong to one ring, and arithmetic may throw later.
 
 ## Run
 
