@@ -4,8 +4,10 @@ import java.util.List;
 
 public class Main {
     public static void main(String[] args) {
-        ZModElement a = new ZModElement(3, 7);
-        ZModElement b = new ZModElement(4, 7);
+        Mod3 mod3 = new Mod3();
+        Mod5 mod5 = new Mod5();
+        ZModElement a = new ZModElement(1, mod3);
+        ZModElement b = new ZModElement(2, mod3);
 
         System.out.println("Working modulo " + a.getModulus());
         System.out.println("a = " + a.getValue());
@@ -17,11 +19,11 @@ public class Main {
         System.out.println("one = " + a.one().getValue());
         System.out.println("a + negate(a) = " + a.add(a.negate()).getValue());
         System.out.println("a equals b = " + a.equals(b));
-        System.out.println("a equals -4 modulo 7 = " + a.equals(new ZModElement(-4, 7)));
+        System.out.println("a equals -2 modulo 3 = " + a.equals(new ZModElement(-2, mod3)));
 
         // These elements have the same value but belong to different rings.
         try {
-            ZModElement otherRing = new ZModElement(3, 5);
+            ZModElement otherRing = new ZModElement(1, mod5);
             a.equals(otherRing);
         } catch (IllegalArgumentException exception) {
             System.out.println("Cannot compare different rings. " + exception.getMessage());
@@ -29,12 +31,12 @@ public class Main {
 
         // Every entry in these matrices is an integer modulo 3.
         Matrix<ZModElement> matrixA = new Matrix<>(2, 2, List.of(
-                List.of(new ZModElement(1, 3), new ZModElement(2, 3)),
-                List.of(new ZModElement(0, 3), new ZModElement(1, 3))
+                List.of(new ZModElement(1, mod3), new ZModElement(2, mod3)),
+                List.of(new ZModElement(0, mod3), new ZModElement(1, mod3))
         ));
         Matrix<ZModElement> matrixB = new Matrix<>(2, 2, List.of(
-                List.of(new ZModElement(2, 3), new ZModElement(0, 3)),
-                List.of(new ZModElement(1, 3), new ZModElement(1, 3))
+                List.of(new ZModElement(2, mod3), new ZModElement(0, mod3)),
+                List.of(new ZModElement(1, mod3), new ZModElement(1, mod3))
         ));
 
         System.out.println("\nMatrices over integers modulo 3");
@@ -48,7 +50,7 @@ public class Main {
         printMatrix("zero", matrixA.zero());
         printMatrix("one", matrixA.one());
 
-        matrixA.setValue(0, 1, new ZModElement(0, 3));
+        matrixA.setValue(0, 1, new ZModElement(0, mod3));
         printMatrix("A after setting row 0 column 1 to zero", matrixA);
     }
 

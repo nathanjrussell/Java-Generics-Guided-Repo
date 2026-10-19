@@ -1,14 +1,13 @@
-# Version 4
+# Version 5
 
-## A generic matrix
+## Modulus objects
 
-`Matrix<T>` replaces `ZModMatrix`. Its declaration is
-`Matrix<T extends RingElement<T>> implements RingElement<Matrix<T>>`.
+`Modulus` provides `value()`. `Mod3` and `Mod5` are final classes returning
+3 and 5. Every instance of a modulus class should represent the same fixed value.
 
-The bound says that entries provide ring operations. The `implements` clause
-says the matrix is also a ring element, with matrices as its operands and results.
-An unrestricted `T` would not provide `add` or `multiply`.
-`Main` uses `Matrix<ZModElement>`. The tests also use matrices as entries.
+Create an element with `new ZModElement(2, new Mod3())`.
+The element now accepts a modulus object, but its Java type is still just
+`ZModElement`. `Main` uses both modulus classes and matrices over modulus 3.
 
 ## Values
 
@@ -16,7 +15,8 @@ Input values must be less than `1_000` and may be negative. Moduli must be betwe
 `1` and `999`. Stored values range from zero through `modulus - 1`.
 For example, negative 6 modulo 5 becomes 4.
 
-Create an element with `new ZModElement(value, modulus)`.
+The constructor validates the modulus. A generic bound cannot prove positivity.
+Modulus implementations must be immutable with one fixed value per class.
 
 ## Methods
 

@@ -1,5 +1,7 @@
 package io.github.nathanjrussell;
 
+import java.util.Objects;
+
 /**
  * Represents an element of the ring of integers modulo a fixed positive modulus.
  *
@@ -17,14 +19,16 @@ package io.github.nathanjrussell;
  */
 public class ZModElement implements RingElement<ZModElement> {
     private final int value;
-    private final int modulus;
+    private final Modulus modulus;
 
     /**
      * @param value the element's input value (must be less than 1,000 and may be negative)
      * @param modulus the modulus (must be greater than zero and less than 1,000)
      */
-    public ZModElement(int value, int modulus) {
-        if (modulus <= 0 || modulus >= 1_000) {
+    public ZModElement(int value, Modulus modulus) {
+        Objects.requireNonNull(modulus, "modulus must not be null");
+        int modulusValue = modulus.value();
+        if (modulusValue <= 0 || modulusValue >= 1_000) {
             throw new IllegalArgumentException("modulus must be greater than zero and less than 1,000");
         }
         if (value >= 1_000) {
@@ -32,9 +36,9 @@ public class ZModElement implements RingElement<ZModElement> {
         }
 
         // Java's remainder can be negative, so add the modulus to normalize it.
-        value = value % modulus;
+        value = value % modulusValue;
         if (value < 0) {
-            value = value + modulus;
+            value = value + modulusValue;
         }
 
         this.modulus = modulus;
@@ -46,16 +50,16 @@ public class ZModElement implements RingElement<ZModElement> {
     }
 
     public int getModulus() {
-        return modulus;
+        return modulus.value();
     }
 
     @Override
     public ZModElement add(ZModElement other) {
-        if (other.modulus != this.modulus) {
+        if (other.getModulus() != this.getModulus()) {
             throw new IllegalArgumentException("The modulus value of the two operands must be equal");
         }
         int sum = this.value + other.value;
-        return new ZModElement(sum % this.modulus, this.modulus);
+        return new ZModElement(sum % this.getModulus(), this.modulus);
     }
 
     /**
@@ -69,11 +73,11 @@ public class ZModElement implements RingElement<ZModElement> {
 
     @Override
     public ZModElement multiply(ZModElement other) {
-        if (other.modulus != this.modulus) {
+        if (other.getModulus() != this.getModulus()) {
             throw new IllegalArgumentException("The modulus value of the two operands must be equal");
         }
         int product = this.value * other.value;
-        return new ZModElement(product % this.modulus, this.modulus);
+        return new ZModElement(product % this.getModulus(), this.modulus);
     }
 
     /** Returns the additive identity in the same ring. */
@@ -99,7 +103,7 @@ public class ZModElement implements RingElement<ZModElement> {
         if (!(other instanceof ZModElement otherElement)) {
             throw new ClassCastException("Cannot compare ZModElements with different types");
         }
-        if (otherElement.modulus != this.modulus) {
+        if (otherElement.getModulus() != this.getModulus()) {
             throw new IllegalArgumentException("The modulus value of the two operands must be equal");
         }
         return this.value == otherElement.value;
