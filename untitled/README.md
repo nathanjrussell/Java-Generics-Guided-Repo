@@ -1,76 +1,63 @@
 # Version 5
 
-## Modulus objects
+## An interface for modulus objects
 
-`Modulus` provides `value()`. `Mod3` and `Mod5` are final classes returning
-3 and 5. Every instance of a modulus class should represent the same fixed value.
+The constructor now accepts a `Modulus` object instead of an integer.
+`Mod3` and `Mod5` implement that interface and return fixed values of 3 and 5.
 
-Create an element with `new ZModElement(2, new Mod3())`.
-The element now accepts a modulus object, but its Java type is still just
-`ZModElement`. `Main` uses both modulus classes and matrices over modulus 3.
+An interface lets the constructor accept either implementation. However, storing
+different object types does not automatically give the enclosing `ZModElement`
+objects different Java types.
 
-## Values
+## Interfaces and generics
 
-Input values must be less than `1_000` and may be negative. Moduli must be between
-`1` and `999`. Stored values range from zero through `modulus - 1`.
-For example, negative 6 modulo 5 becomes 4.
-
-The constructor validates the modulus. A generic bound cannot prove positivity.
-Modulus implementations must be immutable with one fixed value per class.
+`Modulus` is a non-generic interface declaring `value()`.
+`RingElement<T>` is a generic interface using `T` for operands and results.
+`Mod3` and `Mod5` are concrete classes implementing `Modulus`.
+`Matrix<T>` remains a generic class implementing `RingElement<Matrix<T>>`.
 
 ## Methods
 
-| Method | Result |
+| Method | What it returns |
 | --- | --- |
-| `getValue()` and `getModulus()` | The normalized integer value and integer modulus |
-| `add(other)` | The sum in the same ring |
-| `multiply(other)` | The product in the same ring |
-| `negate()` | The additive inverse |
+| `add(other)` and `multiply(other)` | A new result of the same element type |
+| `negate()` | The value that adds to the original to give zero |
 | `zero()` and `one()` | The additive and multiplicative identities |
-| `equals(other)` | Whether two scalar values in the same ring are equal |
+| `getValue()` and `getModulus()` | The scalar's stored integers |
+| `equals(other)` | Whether scalar values with matching moduli are equal |
 
-Arithmetic returns new objects. `negate()` returns the element that adds to the
-original to give zero. Modulo 5, negating 2 gives 3.
+Modulo 5, `negate()` turns 2 into 3. Arithmetic leaves operands unchanged.
+These operations come from rings, which have a set and two operations, addition
+and multiplication, obeying arithmetic laws. They give our Java classes a useful
+common API.
+
+## Using the classes
+
+Create a scalar with `new ZModElement(2, new Mod3())`. Input values
+must be less than `1_000` and may be negative. Moduli range from `1` to `999`.
+Values are normalized, so negative 6 modulo 5 becomes 4.
+
+`new Matrix<>(rows, columns, defaultValues)` takes a square `List<List<T>>`.
+It copies the lists and fixes the dimensions. `getRows()` and `getColumns()` return
+dimensions. `getValue(row, column)` and `setValue(row, column, value)` use indexes
+starting at zero. Matrices also provide the five arithmetic operations.
 
 Scalar arithmetic and equality reject different moduli with
-`IllegalArgumentException`. Equality throws `ClassCastException` for null or
-another Java type.
-
-## Matrices
-
-`new Matrix<>(rows, columns, defaultValues)` accepts a nonempty square
-`List<List<T>>` with exactly those dimensions. The lists are copied, entry references
-are shared, and dimensions stay fixed.
-
-`getRows()` and `getColumns()` return dimensions. `getValue(row, column)` and
-`setValue(row, column, value)` use indexes starting at zero and reject invalid
-indexes or null entries. Arithmetic requires matching sizes. Matrices provide
-all five ring operations but do not override `equals`.
-
-## Rings
-
-A ring is a set with addition and multiplication satisfying associativity and
-distributivity. Addition commutes and has an identity and inverses. We also require
-a multiplicative identity.
-
-Integers modulo one positive modulus form a commutative ring. Adding zero or
-multiplying by one leaves an element unchanged. Modulo 1, zero and one coincide.
-
-Square matrices of one size over a ring also form a ring. Zero is the zero matrix
-and one has ones on the diagonal. Multiplication need not commute, as `Main` shows.
+`IllegalArgumentException`. Equality rejects null or another Java type with
+`ClassCastException`.
 
 ## Type Caveat
 
-The value 3 modulo 7 differs from 3 modulo 5. Both have Java type `ZModElement`,
-so their comparison is rejected at runtime. Runtime ring checking could restrict
-flexibility as features are added.
+An interface promises methods, not numeric ranges. The constructor
+still checks the modulus. Implementations must be immutable with one fixed value
+per class. Elements with different moduli still share type `ZModElement`, and
+matrices can still accept mixed moduli. These mistakes surface at runtime.
 
-Matrices can still accept mixed moduli through construction or assignment.
-Those entries do not belong to one ring, and arithmetic may throw later.
+## In class
 
-## Run
+Create elements using `Mod3` and `Mod5`. Why does their `add` call still compile?
 
-From this directory with JDK 24 and Maven
+From this directory, use JDK 24 and Maven to run the tests and demonstration.
 
 ```sh
 mvn clean test
