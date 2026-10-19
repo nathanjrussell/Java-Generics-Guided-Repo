@@ -5,7 +5,7 @@ package io.github.nathanjrussell;
  * Implementations must obey the ring laws and return results without changing operands.
  * The interface specifies operations, but cannot enforce the mathematical laws.
  */
-public interface RingElement<T extends RingElement<T>> {
+public interface RingElement<T> {
     T zero();
 
     T one();
@@ -16,9 +16,4 @@ public interface RingElement<T extends RingElement<T>> {
 
     /** Returns the additive inverse of this element. */
     T negate();
-
-    /** Returns the additive inverse of the supplied element. */
-    default T negate(T other) {
-        return other.negate();
-    }
 }

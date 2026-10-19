@@ -9,13 +9,13 @@ package io.github.nathanjrussell;
  * and multiplication distributes over addition.
  *
  * Integers wrapped in modular arithmetic with the same modulus form a ring.
- * This class provides the operations through {@link #add(ZMod)} and
- * {@link #multiply(ZMod)}. The additive identity is returned by {@link #zero()},
+ * This class provides the operations through {@link #add(ZModElement)} and
+ * {@link #multiply(ZModElement)}. The additive identity is returned by {@link #zero()},
  * and the multiplicative identity is returned by {@link #one()}.
  * Adding zero or multiplying by one leaves an element unchanged.
  * Every element has an additive inverse, returned by {@link #negate()}.
  */
-public class ZMod implements RingElement<ZMod> {
+public class ZModElement implements RingElement<ZModElement> {
     private final int value;
     private final int modulus;
 
@@ -23,7 +23,7 @@ public class ZMod implements RingElement<ZMod> {
      * @param value the element's input value (must be less than 1,000 and may be negative)
      * @param modulus the modulus (must be greater than zero and less than 1,000)
      */
-    public ZMod(int value, int modulus) {
+    public ZModElement(int value, int modulus) {
         if (modulus <= 0 || modulus >= 1_000) {
             throw new IllegalArgumentException("modulus must be greater than zero and less than 1,000");
         }
@@ -50,12 +50,12 @@ public class ZMod implements RingElement<ZMod> {
     }
 
     @Override
-    public ZMod add(ZMod other) {
+    public ZModElement add(ZModElement other) {
         if (other.modulus != this.modulus) {
             throw new IllegalArgumentException("The modulus value of the two operands must be equal");
         }
         int sum = this.value + other.value;
-        return new ZMod(sum % this.modulus, this.modulus);
+        return new ZModElement(sum % this.modulus, this.modulus);
     }
 
     /**
@@ -63,41 +63,41 @@ public class ZMod implements RingElement<ZMod> {
      * Adding this element to its inverse produces zero.
      */
     @Override
-    public ZMod negate() {
-        return new ZMod(-this.value, this.modulus);
+    public ZModElement negate() {
+        return new ZModElement(-this.value, this.modulus);
     }
 
     @Override
-    public ZMod multiply(ZMod other) {
+    public ZModElement multiply(ZModElement other) {
         if (other.modulus != this.modulus) {
             throw new IllegalArgumentException("The modulus value of the two operands must be equal");
         }
         int product = this.value * other.value;
-        return new ZMod(product % this.modulus, this.modulus);
+        return new ZModElement(product % this.modulus, this.modulus);
     }
 
     /** Returns the additive identity in the same ring. */
     @Override
-    public ZMod zero() {
-        return new ZMod(0, this.modulus);
+    public ZModElement zero() {
+        return new ZModElement(0, this.modulus);
     }
 
     /** Returns the multiplicative identity in the same ring. */
     @Override
-    public ZMod one() {
-        return new ZMod(1, this.modulus);
+    public ZModElement one() {
+        return new ZModElement(1, this.modulus);
     }
 
     /**
      * Compares values within the same ring.
      *
-     * @throws ClassCastException if the other object is null or is not a ZMod
-     * @throws IllegalArgumentException if the other ZMod has a different modulus
+     * @throws ClassCastException if the other object is null or is not a ZModElement
+     * @throws IllegalArgumentException if the other ZModElement has a different modulus
      */
     @Override
     public boolean equals(Object other) {
-        if (!(other instanceof ZMod otherElement)) {
-            throw new ClassCastException("Cannot compare ZMods with different types");
+        if (!(other instanceof ZModElement otherElement)) {
+            throw new ClassCastException("Cannot compare ZModElements with different types");
         }
         if (otherElement.modulus != this.modulus) {
             throw new IllegalArgumentException("The modulus value of the two operands must be equal");

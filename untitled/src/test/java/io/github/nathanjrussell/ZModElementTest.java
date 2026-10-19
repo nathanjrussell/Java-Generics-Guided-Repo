@@ -9,7 +9,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-class ZModTest {
+class ZModElementTest {
 
     @ParameterizedTest
     @CsvSource({
@@ -26,7 +26,7 @@ class ZModTest {
             "-2147483648, 5, 2"
     })
     void constructorNormalizesValueAndPreservesModulus(int value, int modulus, int expected) {
-        ZMod element = new ZMod(value, modulus);
+        ZModElement element = new ZModElement(value, modulus);
 
         assertElement(expected, modulus, element);
     }
@@ -34,13 +34,13 @@ class ZModTest {
     @ParameterizedTest
     @ValueSource(ints = {Integer.MIN_VALUE, -1, 0, 1_000, Integer.MAX_VALUE})
     void constructorRejectsModulusOutsideAllowedRange(int modulus) {
-        assertThrows(IllegalArgumentException.class, () -> new ZMod(1, modulus));
+        assertThrows(IllegalArgumentException.class, () -> new ZModElement(1, modulus));
     }
 
     @ParameterizedTest
     @ValueSource(ints = {1_000, 1_001, Integer.MAX_VALUE})
     void constructorRejectsInputValuesAtOrAboveOneThousand(int value) {
-        assertThrows(IllegalArgumentException.class, () -> new ZMod(value, 5));
+        assertThrows(IllegalArgumentException.class, () -> new ZModElement(value, 5));
     }
 
     @ParameterizedTest
@@ -53,10 +53,10 @@ class ZModTest {
             "1, 1, 1, 0"
     })
     void addReturnsSumModuloModulus(int leftValue, int rightValue, int modulus, int expected) {
-        ZMod left = new ZMod(leftValue, modulus);
-        ZMod right = new ZMod(rightValue, modulus);
+        ZModElement left = new ZModElement(leftValue, modulus);
+        ZModElement right = new ZModElement(rightValue, modulus);
 
-        ZMod result = left.add(right);
+        ZModElement result = left.add(right);
 
         assertElement(expected, modulus, result);
     }
@@ -72,10 +72,10 @@ class ZModTest {
             "1, 1, 1, 0"
     })
     void multiplyReturnsProductModuloModulus(int leftValue, int rightValue, int modulus, int expected) {
-        ZMod left = new ZMod(leftValue, modulus);
-        ZMod right = new ZMod(rightValue, modulus);
+        ZModElement left = new ZModElement(leftValue, modulus);
+        ZModElement right = new ZModElement(rightValue, modulus);
 
-        ZMod result = left.multiply(right);
+        ZModElement result = left.multiply(right);
 
         assertElement(expected, modulus, result);
     }
@@ -89,42 +89,42 @@ class ZModTest {
             "1, 1, 0"
     })
     void negateReturnsAdditiveInverse(int value, int modulus, int expected) {
-        ZMod element = new ZMod(value, modulus);
+        ZModElement element = new ZModElement(value, modulus);
 
-        ZMod result = element.negate();
+        ZModElement result = element.negate();
 
         assertElement(expected, modulus, result);
     }
 
     @Test
     void addRejectsDifferentModuli() {
-        ZMod left = new ZMod(2, 5);
-        ZMod right = new ZMod(3, 7);
+        ZModElement left = new ZModElement(2, 5);
+        ZModElement right = new ZModElement(3, 7);
 
         assertThrows(IllegalArgumentException.class, () -> left.add(right));
     }
 
     @Test
     void multiplyRejectsDifferentModuli() {
-        ZMod left = new ZMod(2, 5);
-        ZMod right = new ZMod(3, 7);
+        ZModElement left = new ZModElement(2, 5);
+        ZModElement right = new ZModElement(3, 7);
 
         assertThrows(IllegalArgumentException.class, () -> left.multiply(right));
     }
 
     @Test
     void addingNegationProducesZero() {
-        ZMod element = new ZMod(998, 999);
+        ZModElement element = new ZModElement(998, 999);
 
-        ZMod result = element.add(element.negate());
+        ZModElement result = element.add(element.negate());
 
         assertElement(0, 999, result);
     }
 
     @Test
     void arithmeticDoesNotChangeOperands() {
-        ZMod left = new ZMod(-6, 5);
-        ZMod right = new ZMod(3, 5);
+        ZModElement left = new ZModElement(-6, 5);
+        ZModElement right = new ZModElement(3, 5);
 
         left.add(right);
         left.multiply(right);
@@ -137,9 +137,9 @@ class ZModTest {
     @ParameterizedTest
     @ValueSource(ints = {1, 2, 5, 999})
     void zeroIsAdditiveIdentityInSameRing(int modulus) {
-        ZMod element = new ZMod(-1, modulus);
+        ZModElement element = new ZModElement(-1, modulus);
 
-        ZMod zero = element.zero();
+        ZModElement zero = element.zero();
 
         assertElement(0, modulus, zero);
         assertEquals(element, element.add(zero));
@@ -149,9 +149,9 @@ class ZModTest {
     @ParameterizedTest
     @CsvSource({"1, 0", "2, 1", "5, 1", "999, 1"})
     void oneIsMultiplicativeIdentityInSameRing(int modulus, int expectedValue) {
-        ZMod element = new ZMod(-1, modulus);
+        ZModElement element = new ZModElement(-1, modulus);
 
-        ZMod one = element.one();
+        ZModElement one = element.one();
 
         assertElement(expectedValue, modulus, one);
         assertEquals(element, element.multiply(one));
@@ -168,8 +168,8 @@ class ZModTest {
             "0, 1, 1, true"
     })
     void equalsComparesNormalizedValuesInSameRing(int leftValue, int rightValue, int modulus, boolean expected) {
-        Object left = new ZMod(leftValue, modulus);
-        Object right = new ZMod(rightValue, modulus);
+        Object left = new ZModElement(leftValue, modulus);
+        Object right = new ZModElement(rightValue, modulus);
 
         assertEquals(expected, left.equals(right));
         assertEquals(expected, right.equals(left));
@@ -177,21 +177,21 @@ class ZModTest {
 
     @Test
     void equalsRecognizesSameObject() {
-        ZMod element = new ZMod(3, 7);
+        ZModElement element = new ZModElement(3, 7);
 
         assertTrue(element.equals(element));
     }
 
     @Test
     void equalsRejectsNull() {
-        ZMod element = new ZMod(3, 7);
+        ZModElement element = new ZModElement(3, 7);
 
         assertThrows(ClassCastException.class, () -> element.equals(null));
     }
 
     @Test
     void equalsRejectsOtherTypes() {
-        ZMod element = new ZMod(3, 7);
+        ZModElement element = new ZModElement(3, 7);
 
         assertThrows(ClassCastException.class, () -> element.equals(Integer.valueOf(3)));
         assertThrows(ClassCastException.class, () -> element.equals("3"));
@@ -201,27 +201,25 @@ class ZModTest {
     @ParameterizedTest
     @CsvSource({"3, 3, 7, 5", "3, 4, 7, 5", "0, 0, 1, 5"})
     void equalsRejectsDifferentRings(int leftValue, int rightValue, int leftModulus, int rightModulus) {
-        Object left = new ZMod(leftValue, leftModulus);
-        Object right = new ZMod(rightValue, rightModulus);
+        Object left = new ZModElement(leftValue, leftModulus);
+        Object right = new ZModElement(rightValue, rightModulus);
 
         assertThrows(IllegalArgumentException.class, () -> left.equals(right));
         assertThrows(IllegalArgumentException.class, () -> right.equals(left));
     }
 
     @Test
-    void genericInterfaceCanNegateAnotherElement() {
-        ZMod receiver = new ZMod(2, 3);
-        RingElement<ZMod> element = receiver;
-        ZMod other = new ZMod(1, 3);
+    void genericInterfaceCanNegateTheElement() {
+        ZModElement receiver = new ZModElement(2, 3);
+        RingElement<ZModElement> element = receiver;
 
-        ZMod result = element.negate(other);
+        ZModElement result = element.negate();
 
-        assertElement(2, 3, result);
+        assertElement(1, 3, result);
         assertElement(2, 3, receiver);
-        assertElement(1, 3, other);
     }
 
-    private static void assertElement(int expectedValue, int expectedModulus, ZMod actual) {
+    private static void assertElement(int expectedValue, int expectedModulus, ZModElement actual) {
         assertEquals(expectedValue, actual.getValue(), "value");
         assertEquals(expectedModulus, actual.getModulus(), "modulus");
     }
